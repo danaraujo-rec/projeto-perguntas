@@ -27,7 +27,7 @@ app.use(express.static('public'))
 
 //linkando o body parser ao express
 //o comando abaixo permite que ao enviar os dados do formulário, o body parse traduza os dados em uma estrutura javascript
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //permite a leitura dos dados do formulário enviado via json
 app.use(bodyParser.json());
@@ -35,24 +35,30 @@ app.use(bodyParser.json());
 // Criando uma rota padrão
 app.get("/", function (req, res) {
     // select * from pergunta 
-    Pergunta.findAll().then(perguntas => {
-        console.log(perguntas);
+    Pergunta.findAll({
+        raw: true, order: [
+            ['id', 'DESC'] //ASC - crescente / DESC - decrescente
+        ]
+    }).then(perguntas => {
+        res.render("index", {
+            perguntas: perguntas
+        })
     });
-    res.render("index")
+
 })
 
-app.get("/perguntar", function(req, res) {
+app.get("/perguntar", function (req, res) {
     res.render("perguntar");
 });
 
 //rota para pegar os dados do formulário e salvar no banco de dados
-app.post("/salvarpergunta", function(req, res) {
+app.post("/salvarpergunta", function (req, res) {
     //pegando as informações do formulário
     var titulo = req.body.titulo;
     var descricao = req.body.descricao;
     var data = new Date(); //captura a data universal
     //Convertendo para o horário de Brasília
-    var dataBrasilia =  new Date(data.valueOf() - data.getTimezoneOffset() * 6000);
+    var dataBrasilia = new Date(data.valueOf() - data.getTimezoneOffset() * 6000);
     // método create é equivalente ao inserte do sql.
     Pergunta.create({
         titulo: titulo,
@@ -61,6 +67,22 @@ app.post("/salvarpergunta", function(req, res) {
         updatedAt: dataBrasilia
     }).then(() => {
         res.redirect("/");
+    });
+});
+
+app.get("/pergunta/:id", function (req, res) {
+    var id = req.params.id;
+    //o findOne busca no banco um dado através da condição dada a ele
+    Pergunta.findOne({
+        where: {
+            id: id
+        }
+    }).then(pergunta => {
+        if (pergunta != undefined) { //pergunta achada
+            res.render("pergunta");
+        }else{
+            res.redirect("/");
+        }
     });
 });
 

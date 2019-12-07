@@ -16,8 +16,11 @@ connection
 //importando o body-parser
 const bodyParser = require("body-parser");
 
-// Importando o model
+// Importando o model pergunta
 const Pergunta = require("./database/Pergunta");
+
+// Importando model resposta
+const Resposta = require("./database/Resposta");
 
 // Informando ao express usar o EJS
 app.set('view engine', 'ejs');
@@ -79,12 +82,32 @@ app.get("/pergunta/:id", function (req, res) {
         }
     }).then(pergunta => {
         if (pergunta != undefined) { //pergunta achada
-            res.render("pergunta", {
-                pergunta: pergunta
+
+            Resposta.findAll({
+                where: {
+                    perguntaId: pergunta.id
+                }
+            }).then(respostas => {
+                res.render("pergunta", {
+                    pergunta: pergunta,
+                    respostas: respostas
+                });
             });
-        }else{
+        } else {
             res.redirect("/");
         }
+    });
+});
+
+app.post("/responder", function (req, res) {
+    var corpo = req.body.corpo;
+    var perguntaId = req.body.pergunta
+
+    Resposta.create({
+        corpo: corpo,
+        perguntaId: perguntaId
+    }).then(() => {
+        res.redirect("/pergunta/" + perguntaId);
     });
 });
 

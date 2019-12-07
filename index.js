@@ -85,8 +85,10 @@ app.get("/pergunta/:id", function (req, res) {
 
             Resposta.findAll({
                 where: {
-                    perguntaId: pergunta.id
-                }
+                    perguntaId: pergunta.id},
+                    order:[
+                        ['id', 'DESC']
+                    ]
             }).then(respostas => {
                 res.render("pergunta", {
                     pergunta: pergunta,

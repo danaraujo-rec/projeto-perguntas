@@ -45,7 +45,7 @@ app.get("/", function (req, res) {
         })
     });
 
-})
+});
 
 app.get("/perguntar", function (req, res) {
     res.render("perguntar");
@@ -79,7 +79,9 @@ app.get("/pergunta/:id", function (req, res) {
         }
     }).then(pergunta => {
         if (pergunta != undefined) { //pergunta achada
-            res.render("pergunta");
+            res.render("pergunta", {
+                pergunta: pergunta
+            });
         }else{
             res.redirect("/");
         }
